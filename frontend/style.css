@@ -1,0 +1,421 @@
+/* ==========================================
+   style.css - Inventory Management System
+   Simple, clean, easy-to-read UI styles
+   ========================================== */
+
+/* ---- CSS Reset & Base ---- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f0f2f5;
+  color: #333;
+  min-height: 100vh;
+}
+
+/* ---- Header ---- */
+header {
+  background-color: #1a73e8;
+  color: white;
+  padding: 18px 24px;
+  text-align: center;
+}
+
+header h1 {
+  font-size: 1.8rem;
+  margin-bottom: 4px;
+}
+
+header p {
+  font-size: 0.9rem;
+  opacity: 0.85;
+}
+
+/* ---- Tab Navigation ---- */
+.tabs {
+  display: flex;
+  background-color: #fff;
+  border-bottom: 2px solid #1a73e8;
+  padding: 0 16px;
+  gap: 4px;
+  overflow-x: auto;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  padding: 14px 20px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  color: #555;
+  border-bottom: 3px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+}
+
+.tab-btn:hover {
+  color: #1a73e8;
+}
+
+.tab-btn.active {
+  color: #1a73e8;
+  border-bottom-color: #1a73e8;
+  font-weight: 600;
+}
+
+/* ---- Status Message ---- */
+.status-msg {
+  margin: 12px 24px;
+  padding: 12px 16px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.status-msg.success {
+  background-color: #e6f4ea;
+  color: #1e8a3b;
+  border-left: 4px solid #34a853;
+}
+
+.status-msg.error {
+  background-color: #fce8e6;
+  color: #c5221f;
+  border-left: 4px solid #ea4335;
+}
+
+.hidden { display: none !important; }
+
+/* ---- Tab Content ---- */
+.tab-content {
+  display: none;
+  padding: 20px 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* ---- Card ---- */
+.card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+
+.card h2 {
+  font-size: 1.1rem;
+  margin-bottom: 16px;
+  color: #1a1a1a;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+}
+
+/* ---- Two-Column Layout ---- */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .two-col { grid-template-columns: 1fr; }
+}
+
+/* ---- Forms ---- */
+form label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 4px;
+  margin-top: 12px;
+}
+
+form label:first-child { margin-top: 0; }
+
+form input[type="text"],
+form input[type="email"],
+form input[type="number"],
+form textarea,
+form select,
+select {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  color: #333;
+  background-color: #fafafa;
+  transition: border-color 0.2s;
+}
+
+form input:focus,
+form textarea:focus,
+form select:focus,
+select:focus {
+  outline: none;
+  border-color: #1a73e8;
+  background-color: #fff;
+}
+
+form textarea { resize: vertical; }
+
+/* ---- Buttons ---- */
+.btn {
+  display: inline-block;
+  padding: 9px 18px;
+  border: none;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, opacity 0.2s;
+  margin-top: 14px;
+}
+
+.btn:hover { opacity: 0.88; }
+
+.btn-primary   { background-color: #1a73e8; color: #fff; }
+.btn-secondary { background-color: #34a853; color: #fff; }
+.btn-danger    { background-color: #ea4335; color: #fff; }
+.btn-warning   { background-color: #f9ab00; color: #333; }
+.btn-outline   {
+  background-color: transparent;
+  color: #1a73e8;
+  border: 1.5px solid #1a73e8;
+}
+
+.btn-sm {
+  padding: 6px 14px;
+  font-size: 0.82rem;
+  margin-top: 0;
+}
+
+.btn-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+/* ---- Filter section ---- */
+.filter-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  align-items: end;
+}
+
+@media (max-width: 600px) {
+  .filter-row { grid-template-columns: 1fr; }
+}
+
+.filter-row label {
+  display: block;
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 4px;
+}
+
+.filter-row input,
+.filter-row select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 0.88rem;
+}
+
+/* ---- Table ---- */
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.table-header h2 { border: none; padding: 0; margin: 0; }
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+thead {
+  background-color: #f5f7fa;
+}
+
+thead th {
+  text-align: left;
+  padding: 10px 12px;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #666;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+tbody tr {
+  border-bottom: 1px solid #eee;
+  transition: background-color 0.15s;
+}
+
+tbody tr:hover { background-color: #f9fbff; }
+
+tbody td {
+  padding: 10px 12px;
+  vertical-align: middle;
+  color: #444;
+}
+
+.loading {
+  text-align: center;
+  color: #999;
+  font-style: italic;
+  padding: 20px !important;
+}
+
+/* ---- Status Badge ---- */
+.badge {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.badge-pending    { background-color: #fff3cd; color: #856404; }
+.badge-processing { background-color: #cfe2ff; color: #0a58ca; }
+.badge-shipped    { background-color: #d1ecf1; color: #0c5460; }
+.badge-completed  { background-color: #d4edda; color: #155724; }
+.badge-cancelled  { background-color: #f8d7da; color: #721c24; }
+
+/* ---- Order Form ---- */
+.order-form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.order-item-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr auto;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 10px 12px;
+  background: #f5f7fa;
+  border-radius: 6px;
+}
+
+.order-item-row select,
+.order-item-row input {
+  padding: 7px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.88rem;
+  width: 100%;
+}
+
+.order-item-row .remove-btn {
+  background: #ea4335;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.order-total-row {
+  text-align: right;
+  font-size: 1rem;
+  padding: 10px 0;
+  border-top: 1px solid #eee;
+  margin: 12px 0 10px;
+}
+
+/* ---- Statistics ---- */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.stat-box {
+  background-color: #f0f4ff;
+  border: 1px solid #c5d2f6;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+}
+
+.stat-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 10px;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1a73e8;
+}
+
+/* ---- Modal ---- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: #fff;
+  border-radius: 10px;
+  padding: 28px 32px;
+  width: 100%;
+  max-width: 460px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+}
+
+.modal h2 {
+  font-size: 1.15rem;
+  margin-bottom: 16px;
+  color: #1a1a1a;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+}
+
+/* ---- Order items detail in table ---- */
+.items-list {
+  list-style: none;
+  padding: 0;
+  font-size: 0.82rem;
+  color: #555;
+}
+
+.items-list li { padding: 1px 0; }

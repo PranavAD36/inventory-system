@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inventory Management System</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- ============================================
+       HEADER
+  ============================================= -->
+    <header>
+      <h1>Inventory Management System</h1>
+      <p>DBMS College Project &mdash; E-Commerce Style</p>
+    </header>
+
+    <!-- ============================================
+       TAB NAVIGATION
+  ============================================= -->
+    <nav class="tabs">
+      <button class="tab-btn active" onclick="showTab('products')">
+        Products
+      </button>
+      <button class="tab-btn" onclick="showTab('categories')">
+        Categories
+      </button>
+      <button class="tab-btn" onclick="showTab('users')">Users</button>
+      <button class="tab-btn" onclick="showTab('orders')">Orders</button>
+      <button class="tab-btn" onclick="showTab('stats')">Statistics</button>
+    </nav>
+
+    <!-- ============================================
+       GLOBAL STATUS MESSAGE
+  ============================================= -->
+    <div id="status-msg" class="status-msg hidden"></div>
+
+    <!-- ============================================================
+       TAB 1: PRODUCTS
+       - Add Product form (INSERT)
+       - Filter by price (FILTER)
+       - Products table with Edit / Delete buttons (UPDATE / DELETE)
+       - Edit modal (UPDATE)
+  =============================================================== -->
+    <section id="tab-products" class="tab-content active">
+      <div class="two-col">
+        <!-- ---- Add Product Form ---- -->
+        <div class="card">
+          <h2>Add New Product</h2>
+          <form id="form-add-product">
+            <label>Product Name *</label>
+            <input
+              type="text"
+              id="prod-name"
+              placeholder="e.g. Wireless Mouse"
+              required
+            />
+
+            <label>Description</label>
+            <textarea
+              id="prod-desc"
+              placeholder="Short description..."
+              rows="2"
+            ></textarea>
+
+            <label>Price (₹) *</label>
+            <input
+              type="number"
+              id="prod-price"
+              placeholder="e.g. 599"
+              min="0"
+              step="0.01"
+              required
+            />
+
+            <label>Stock Quantity</label>
+            <input
+              type="number"
+              id="prod-stock"
+              placeholder="e.g. 50"
+              min="0"
+              value="0"
+            />
+
+            <label>Category *</label>
+            <!-- Populated dynamically by app.js -->
+            <select id="prod-category" required>
+              <option value="">-- Select Category --</option>
+            </select>
+
+            <button type="submit" class="btn btn-primary">Add Product</button>
+          </form>
+        </div>
+
+        <!-- ---- Filter Products ---- -->
+        <div class="card">
+          <h2>Filter Products by Price</h2>
+          <div class="filter-row">
+            <div>
+              <label>Min Price (₹)</label>
+              <input type="number" id="filter-min" placeholder="0" min="0" />
+            </div>
+            <div>
+              <label>Max Price (₹)</label>
+              <input
+                type="number"
+                id="filter-max"
+                placeholder="99999"
+                min="0"
+              />
+            </div>
+            <div>
+              <label>Category</label>
+              <select id="filter-category">
+                <option value="">All Categories</option>
+              </select>
+            </div>
+          </div>
+          <div class="btn-row">
+            <button onclick="filterProducts()" class="btn btn-secondary">
+              Apply Filter
+            </button>
+            <button onclick="loadProducts()" class="btn btn-outline">
+              Clear Filter
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ---- Products Table ---- -->
+      <div class="card">
+        <div class="table-header">
+          <h2>All Products</h2>
+          <button onclick="loadProducts()" class="btn btn-outline btn-sm">
+            Refresh
+          </button>
+        </div>
+        <div class="table-wrap">
+          <table id="table-products">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Price (₹)</th>
+                <th>Stock</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-products">
+              <tr>
+                <td colspan="6" class="loading">Loading products...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+       TAB 2: CATEGORIES
+  =============================================================== -->
+    <section id="tab-categories" class="tab-content">
+      <div class="two-col">
+        <!-- ---- Add Category Form ---- -->
+        <div class="card">
+          <h2>Add New Category</h2>
+          <form id="form-add-category">
+            <label>Category Name *</label>
+            <input
+              type="text"
+              id="cat-name"
+              placeholder="e.g. Electronics"
+              required
+            />
+
+            <label>Description</label>
+            <textarea
+              id="cat-desc"
+              placeholder="Short description..."
+              rows="2"
+            ></textarea>
+
+            <button type="submit" class="btn btn-primary">Add Category</button>
+          </form>
+        </div>
+
+        <!-- ---- Categories Table ---- -->
+        <div class="card">
+          <h2>All Categories</h2>
+          <div class="table-wrap">
+            <table id="table-categories">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-categories">
+                <tr>
+                  <td colspan="3" class="loading">Loading categories...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+       TAB 3: USERS
+  =============================================================== -->
+    <section id="tab-users" class="tab-content">
+      <div class="two-col">
+        <!-- ---- Add User Form ---- -->
+        <div class="card">
+          <h2>Register New User</h2>
+          <form id="form-add-user">
+            <label>Full Name *</label>
+            <input
+              type="text"
+              id="user-name"
+              placeholder="e.g. Rahul Sharma"
+              required
+            />
+
+            <label>Email *</label>
+            <input
+              type="email"
+              id="user-email"
+              placeholder="e.g. rahul@example.com"
+              required
+            />
+
+            <label>Phone</label>
+            <input type="text" id="user-phone" placeholder="e.g. 9876543210" />
+
+            <label>Address</label>
+            <textarea
+              id="user-address"
+              placeholder="Full address..."
+              rows="2"
+            ></textarea>
+
+            <button type="submit" class="btn btn-primary">Register User</button>
+          </form>
+        </div>
+
+        <!-- ---- Users Table ---- -->
+        <div class="card">
+          <h2>All Users</h2>
+          <div class="table-wrap">
+            <table id="table-users">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-users">
+                <tr>
+                  <td colspan="4" class="loading">Loading users...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+       TAB 4: ORDERS
+  =============================================================== -->
+    <section id="tab-orders" class="tab-content">
+      <!-- ---- Place Order Form ---- -->
+      <div class="card">
+        <h2>Place New Order</h2>
+        <div class="order-form-grid">
+          <div>
+            <label>Select User *</label>
+            <select id="order-user" required>
+              <option value="">-- Select User --</option>
+            </select>
+          </div>
+        </div>
+
+        <h3>Order Items</h3>
+        <div id="order-items-list">
+          <!-- Item rows are added dynamically -->
+        </div>
+        <button
+          onclick="addOrderItemRow()"
+          class="btn btn-outline btn-sm"
+          style="margin-bottom: 10px"
+        >
+          + Add Item
+        </button>
+
+        <div class="order-total-row">
+          <strong>Total: ₹<span id="order-total">0.00</span></strong>
+        </div>
+
+        <button onclick="placeOrder()" class="btn btn-primary">
+          Place Order
+        </button>
+      </div>
+
+      <!-- ---- Orders Table ---- -->
+      <div class="card">
+        <div class="table-header">
+          <h2>All Orders</h2>
+          <button onclick="loadOrders()" class="btn btn-outline btn-sm">
+            Refresh
+          </button>
+        </div>
+        <div class="table-wrap">
+          <table id="table-orders">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Items</th>
+                <th>Total (₹)</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-orders">
+              <tr>
+                <td colspan="7" class="loading">Loading orders...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+       TAB 5: STATISTICS (AGGREGATION)
+  =============================================================== -->
+    <section id="tab-stats" class="tab-content">
+      <div class="card">
+        <h2>Order Statistics (Aggregation)</h2>
+        <button
+          onclick="loadStats()"
+          class="btn btn-outline btn-sm"
+          style="margin-bottom: 16px"
+        >
+          Refresh Stats
+        </button>
+        <div id="stats-grid" class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-label">Total Orders</div>
+            <div class="stat-value" id="stat-orders">—</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Total Revenue (₹)</div>
+            <div class="stat-value" id="stat-revenue">—</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Avg Order Value (₹)</div>
+            <div class="stat-value" id="stat-avg">—</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Orders by Status</div>
+            <div class="stat-value" id="stat-status" style="font-size: 14px">
+              —
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+       EDIT PRODUCT MODAL
+  =============================================================== -->
+    <div id="modal-edit" class="modal-overlay hidden">
+      <div class="modal">
+        <h2>Edit Product</h2>
+        <form id="form-edit-product">
+          <input type="hidden" id="edit-prod-id" />
+
+          <label>Product Name *</label>
+          <input type="text" id="edit-prod-name" required />
+
+          <label>Description</label>
+          <textarea id="edit-prod-desc" rows="2"></textarea>
+
+          <label>Price (₹) *</label>
+          <input
+            type="number"
+            id="edit-prod-price"
+            min="0"
+            step="0.01"
+            required
+          />
+
+          <label>Stock Quantity</label>
+          <input type="number" id="edit-prod-stock" min="0" />
+
+          <label>Category *</label>
+          <select id="edit-prod-category" required>
+            <option value="">-- Select Category --</option>
+          </select>
+
+          <div class="btn-row">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <button
+              type="button"
+              onclick="closeModal()"
+              class="btn btn-outline"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
