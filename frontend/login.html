@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login — Inventory Management System</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- ============================================
+       HEADER
+    ============================================= -->
+    <header>
+      <h1>Inventory Management System</h1>
+      <p>DBMS College Project &mdash; E-Commerce Style</p>
+    </header>
+
+    <!-- ============================================
+       LOGIN — Simple role selection
+       Stores role in localStorage, then redirects
+    ============================================= -->
+    <div class="login-container">
+      <div class="card login-card">
+        <h2>Welcome</h2>
+        <p class="login-subtitle">Select your role to continue</p>
+
+        <!-- Admin button -->
+        <button class="btn btn-primary login-btn" onclick="loginAs('admin')">
+          Login as Admin
+        </button>
+        <p class="role-desc">Add, edit &amp; delete products</p>
+
+        <div class="login-divider"><span>OR</span></div>
+
+        <!-- Customer button -->
+        <button
+          class="btn btn-secondary login-btn"
+          onclick="loginAs('customer')"
+        >
+          Login as Customer
+        </button>
+        <p class="role-desc">Browse &amp; shop products</p>
+      </div>
+    </div>
+
+    <script>
+      // Save role to localStorage and redirect to the right page
+      function loginAs(role) {
+        localStorage.setItem("userRole", role);
+        window.location.href =
+          role === "admin" ? "admin.html" : "customer.html";
+      }
+
+      // Auto-redirect if already logged in
+      window.addEventListener("DOMContentLoaded", () => {
+        const role = localStorage.getItem("userRole");
+        if (role === "admin") window.location.href = "admin.html";
+        if (role === "customer") window.location.href = "customer.html";
+      });
+    </script>
+  </body>
+</html>

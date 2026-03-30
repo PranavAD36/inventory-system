@@ -66,6 +66,19 @@ function formatDate(isoString) {
   });
 }
 
+/**
+ * getStockBadge() - Return an HTML badge based on stock level
+ * Real inventory behavior:
+ *   stock === 0  → “Out of Stock” (red badge)
+ *   stock < 5    → “Low Stock”  (yellow badge)
+ *   stock >= 5   → “In Stock”   (green badge)
+ */
+function getStockBadge(stock) {
+  if (stock === 0) return '<span class="badge badge-out-of-stock">Out of Stock</span>';
+  if (stock < 5)   return '<span class="badge badge-low-stock">Low Stock</span>';
+  return '<span class="badge badge-in-stock">In Stock</span>';
+}
+
 // ==========================================
 // PRODUCTS
 // ==========================================
@@ -85,7 +98,7 @@ async function loadProducts() {
     const tbody = document.getElementById('tbody-products');
 
     if (result.data.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6" class="loading">No products found. Add one above.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" class="loading">No products found. Add one above.</td></tr>';
       return;
     }
 
@@ -96,7 +109,8 @@ async function loadProducts() {
         <td><strong>${p.name}</strong><br><small style="color:#888">${p.description || ''}</small></td>
         <td>${p.categories ? p.categories.name : '—'}</td>
         <td>₹${parseFloat(p.price).toFixed(2)}</td>
-        <td>${p.stock_quantity}</td>
+        <td>${p.stock}</td>
+        <td>${getStockBadge(p.stock)}</td>
         <td>
           <button class="btn btn-warning btn-sm" onclick="openEditModal(${p.id})">Edit</button>
           <button class="btn btn-danger btn-sm"  onclick="deleteProduct(${p.id}, '${p.name.replace(/'/g, "\\'")}')">Delete</button>
@@ -106,7 +120,7 @@ async function loadProducts() {
 
   } catch (err) {
     document.getElementById('tbody-products').innerHTML =
-      `<tr><td colspan="6" class="loading" style="color:red">Error: ${err.message}</td></tr>`;
+      `<tr><td colspan="7" class="loading" style="color:red">Error: ${err.message}</td></tr>`;
   }
 }
 
@@ -132,7 +146,7 @@ async function filterProducts() {
     const tbody = document.getElementById('tbody-products');
 
     if (result.data.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6" class="loading">No products match your filter.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" class="loading">No products match your filter.</td></tr>';
       showStatus(`Filter applied — 0 products found`, 'error');
       return;
     }
@@ -143,7 +157,8 @@ async function filterProducts() {
         <td><strong>${p.name}</strong><br><small style="color:#888">${p.description || ''}</small></td>
         <td>${p.categories ? p.categories.name : '—'}</td>
         <td>₹${parseFloat(p.price).toFixed(2)}</td>
-        <td>${p.stock_quantity}</td>
+        <td>${p.stock}</td>
+        <td>${getStockBadge(p.stock)}</td>
         <td>
           <button class="btn btn-warning btn-sm" onclick="openEditModal(${p.id})">Edit</button>
           <button class="btn btn-danger btn-sm"  onclick="deleteProduct(${p.id}, '${p.name.replace(/'/g, "\\'")}')">Delete</button>
@@ -163,13 +178,26 @@ async function filterProducts() {
 document.getElementById('form-add-product').addEventListener('submit', async (e) => {
   e.preventDefault(); // Prevent page reload
 
+  // category_id is a UUID string from the dropdown — do NOT convert with parseInt/Number
+  const category_id = document.getElementById('prod-category').value;
+
+  // UUID validation: reject if not a valid UUID format
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!category_id || !uuidRegex.test(category_id)) {
+    showStatus('Please select a valid category.', 'error');
+    return;
+  }
+
   const product = {
-    name:           document.getElementById('prod-name').value.trim(),
-    description:    document.getElementById('prod-desc').value.trim(),
-    price:          parseFloat(document.getElementById('prod-price').value),
-    stock_quantity: parseInt(document.getElementById('prod-stock').value) || 0,
-    category_id:    parseInt(document.getElementById('prod-category').value)
+    name:        document.getElementById('prod-name').value.trim(),
+    description: document.getElementById('prod-desc').value.trim(),
+    price:       parseFloat(document.getElementById('prod-price').value),
+    stock:       parseInt(document.getElementById('prod-stock').value) || 0,
+    category_id  // UUID string — passed as-is, no parseInt/Number conversion
   };
+
+  console.log('[Add Product] Sending:', product);
+  console.log('[Add Product] category_id (UUID):', category_id);
 
   try {
     // POST /api/products with product data in the request body
@@ -233,7 +261,7 @@ async function openEditModal(id) {
     document.getElementById('edit-prod-name').value     = p.name;
     document.getElementById('edit-prod-desc').value     = p.description || '';
     document.getElementById('edit-prod-price').value    = p.price;
-    document.getElementById('edit-prod-stock').value    = p.stock_quantity;
+    document.getElementById('edit-prod-stock').value    = p.stock;
 
     // Populate category dropdown and select current
     await populateCategoryDropdown('edit-prod-category');
@@ -255,13 +283,26 @@ document.getElementById('form-edit-product').addEventListener('submit', async (e
 
   const id = document.getElementById('edit-prod-id').value;
 
+  // category_id is a UUID string from the dropdown — do NOT convert with parseInt/Number
+  const category_id = document.getElementById('edit-prod-category').value;
+
+  // UUID validation: reject if not a valid UUID format
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!category_id || !uuidRegex.test(category_id)) {
+    showStatus('Please select a valid category.', 'error');
+    return;
+  }
+
   const updates = {
-    name:           document.getElementById('edit-prod-name').value.trim(),
-    description:    document.getElementById('edit-prod-desc').value.trim(),
-    price:          parseFloat(document.getElementById('edit-prod-price').value),
-    stock_quantity: parseInt(document.getElementById('edit-prod-stock').value),
-    category_id:    parseInt(document.getElementById('edit-prod-category').value)
+    name:        document.getElementById('edit-prod-name').value.trim(),
+    description: document.getElementById('edit-prod-desc').value.trim(),
+    price:       parseFloat(document.getElementById('edit-prod-price').value),
+    stock:       parseInt(document.getElementById('edit-prod-stock').value),
+    category_id  // UUID string — passed as-is, no parseInt/Number conversion
   };
+
+  console.log('[Edit Product] Sending update:', updates);
+  console.log('[Edit Product] category_id (UUID):', category_id);
 
   try {
     // PUT /api/products/:id with updated data
@@ -760,4 +801,52 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   // Add the first order item row by default
   addOrderItemRow();
+
+  // ---- Form Validation: disable submit buttons when required fields are empty ----
+  setupFormValidation();
 });
+
+/**
+ * setupFormValidation() - Disable submit buttons until required fields are filled
+ * Improves UX by preventing empty submissions visually
+ */
+function setupFormValidation() {
+  // -- Add Product form: name, price, category are required --
+  const prodBtn    = document.querySelector('#form-add-product button[type="submit"]');
+  const prodFields = ['prod-name', 'prod-price', 'prod-category'];
+
+  function checkProductForm() {
+    const allFilled = prodFields.every(id => document.getElementById(id).value.trim() !== '');
+    prodBtn.disabled = !allFilled;
+  }
+
+  prodFields.forEach(id => {
+    document.getElementById(id).addEventListener('input', checkProductForm);
+    document.getElementById(id).addEventListener('change', checkProductForm);
+  });
+  checkProductForm(); // Initial check (disables button on page load)
+
+  // -- Add Category form: name is required --
+  const catBtn = document.querySelector('#form-add-category button[type="submit"]');
+
+  function checkCategoryForm() {
+    catBtn.disabled = !document.getElementById('cat-name').value.trim();
+  }
+
+  document.getElementById('cat-name').addEventListener('input', checkCategoryForm);
+  checkCategoryForm();
+
+  // -- Register User form: name and email are required --
+  const userBtn    = document.querySelector('#form-add-user button[type="submit"]');
+  const userFields = ['user-name', 'user-email'];
+
+  function checkUserForm() {
+    const allFilled = userFields.every(id => document.getElementById(id).value.trim() !== '');
+    userBtn.disabled = !allFilled;
+  }
+
+  userFields.forEach(id => {
+    document.getElementById(id).addEventListener('input', checkUserForm);
+  });
+  checkUserForm();
+}

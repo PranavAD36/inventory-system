@@ -1,17 +1,19 @@
 /* ==========================================
    style.css - Inventory Management System
-   Simple, clean, easy-to-read UI styles
+   Clean, minimal UI styles
    ========================================== */
 
 /* ---- CSS Reset & Base ---- */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   background-color: #f0f2f5;
   color: #333;
   min-height: 100vh;
@@ -35,36 +37,47 @@ header p {
   opacity: 0.85;
 }
 
-/* ---- Tab Navigation ---- */
-.tabs {
+/* ---- Header Row (role badge + logout) ---- */
+.header-row {
   display: flex;
-  background-color: #fff;
-  border-bottom: 2px solid #1a73e8;
-  padding: 0 16px;
-  gap: 4px;
-  overflow-x: auto;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.tab-btn {
-  background: none;
-  border: none;
-  padding: 14px 20px;
-  font-size: 0.95rem;
-  cursor: pointer;
-  color: #555;
-  border-bottom: 3px solid transparent;
-  transition: color 0.2s, border-color 0.2s;
-  white-space: nowrap;
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.tab-btn:hover {
+.role-badge {
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.role-admin {
+  background-color: #fce8e6;
+  color: #c5221f;
+}
+.role-customer {
+  background-color: #e8f0fe;
   color: #1a73e8;
 }
 
-.tab-btn.active {
-  color: #1a73e8;
-  border-bottom-color: #1a73e8;
-  font-weight: 600;
+.btn-logout {
+  color: #fff !important;
+  border-color: rgba(255, 255, 255, 0.6) !important;
+  margin-top: 0;
+}
+
+.btn-logout:hover {
+  background-color: rgba(255, 255, 255, 0.15);
 }
 
 /* ---- Status Message ---- */
@@ -88,18 +101,15 @@ header p {
   border-left: 4px solid #ea4335;
 }
 
-.hidden { display: none !important; }
-
-/* ---- Tab Content ---- */
-.tab-content {
-  display: none;
-  padding: 20px 24px;
-  max-width: 1200px;
-  margin: 0 auto;
+.hidden {
+  display: none !important;
 }
 
-.tab-content.active {
-  display: block;
+/* ---- Page Content Wrapper ---- */
+.page-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px 24px;
 }
 
 /* ---- Card ---- */
@@ -108,7 +118,7 @@ header p {
   border-radius: 8px;
   padding: 20px 24px;
   margin-bottom: 20px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
 .card h2 {
@@ -117,17 +127,6 @@ header p {
   color: #1a1a1a;
   border-bottom: 1px solid #eee;
   padding-bottom: 8px;
-}
-
-/* ---- Two-Column Layout ---- */
-.two-col {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
-
-@media (max-width: 768px) {
-  .two-col { grid-template-columns: 1fr; }
 }
 
 /* ---- Forms ---- */
@@ -140,14 +139,12 @@ form label {
   margin-top: 12px;
 }
 
-form label:first-child { margin-top: 0; }
+form label:first-child {
+  margin-top: 0;
+}
 
 form input[type="text"],
-form input[type="email"],
-form input[type="number"],
-form textarea,
-form select,
-select {
+form input[type="number"] {
   width: 100%;
   padding: 9px 12px;
   border: 1px solid #ddd;
@@ -158,16 +155,11 @@ select {
   transition: border-color 0.2s;
 }
 
-form input:focus,
-form textarea:focus,
-form select:focus,
-select:focus {
+form input:focus {
   outline: none;
   border-color: #1a73e8;
   background-color: #fff;
 }
-
-form textarea { resize: vertical; }
 
 /* ---- Buttons ---- */
 .btn {
@@ -182,13 +174,32 @@ form textarea { resize: vertical; }
   margin-top: 14px;
 }
 
-.btn:hover { opacity: 0.88; }
+.btn:hover {
+  opacity: 0.88;
+}
 
-.btn-primary   { background-color: #1a73e8; color: #fff; }
-.btn-secondary { background-color: #34a853; color: #fff; }
-.btn-danger    { background-color: #ea4335; color: #fff; }
-.btn-warning   { background-color: #f9ab00; color: #333; }
-.btn-outline   {
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background-color: #1a73e8;
+  color: #fff;
+}
+.btn-secondary {
+  background-color: #34a853;
+  color: #fff;
+}
+.btn-danger {
+  background-color: #ea4335;
+  color: #fff;
+}
+.btn-warning {
+  background-color: #f9ab00;
+  color: #333;
+}
+.btn-outline {
   background-color: transparent;
   color: #1a73e8;
   border: 1.5px solid #1a73e8;
@@ -206,35 +217,6 @@ form textarea { resize: vertical; }
   margin-top: 14px;
 }
 
-/* ---- Filter section ---- */
-.filter-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 12px;
-  align-items: end;
-}
-
-@media (max-width: 600px) {
-  .filter-row { grid-template-columns: 1fr; }
-}
-
-.filter-row label {
-  display: block;
-  font-size: 0.83rem;
-  font-weight: 600;
-  color: #555;
-  margin-bottom: 4px;
-}
-
-.filter-row input,
-.filter-row select {
-  width: 100%;
-  padding: 8px 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  font-size: 0.88rem;
-}
-
 /* ---- Table ---- */
 .table-header {
   display: flex;
@@ -243,7 +225,11 @@ form textarea { resize: vertical; }
   margin-bottom: 12px;
 }
 
-.table-header h2 { border: none; padding: 0; margin: 0; }
+.table-header h2 {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
 
 .table-wrap {
   overflow-x: auto;
@@ -274,7 +260,9 @@ tbody tr {
   transition: background-color 0.15s;
 }
 
-tbody tr:hover { background-color: #f9fbff; }
+tbody tr:hover {
+  background-color: #f9fbff;
+}
 
 tbody td {
   padding: 10px 12px;
@@ -289,7 +277,7 @@ tbody td {
   padding: 20px !important;
 }
 
-/* ---- Status Badge ---- */
+/* ---- Stock Status Badges ---- */
 .badge {
   display: inline-block;
   padding: 3px 9px;
@@ -299,94 +287,24 @@ tbody td {
   text-transform: capitalize;
 }
 
-.badge-pending    { background-color: #fff3cd; color: #856404; }
-.badge-processing { background-color: #cfe2ff; color: #0a58ca; }
-.badge-shipped    { background-color: #d1ecf1; color: #0c5460; }
-.badge-completed  { background-color: #d4edda; color: #155724; }
-.badge-cancelled  { background-color: #f8d7da; color: #721c24; }
-
-/* ---- Order Form ---- */
-.order-form-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-  margin-bottom: 16px;
+.badge-in-stock {
+  background-color: #d4edda;
+  color: #155724;
 }
-
-.order-item-row {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr auto;
-  gap: 10px;
-  align-items: center;
-  margin-bottom: 8px;
-  padding: 10px 12px;
-  background: #f5f7fa;
-  border-radius: 6px;
+.badge-low-stock {
+  background-color: #fff3cd;
+  color: #856404;
 }
-
-.order-item-row select,
-.order-item-row input {
-  padding: 7px 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 0.88rem;
-  width: 100%;
-}
-
-.order-item-row .remove-btn {
-  background: #ea4335;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  padding: 6px 10px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.order-total-row {
-  text-align: right;
-  font-size: 1rem;
-  padding: 10px 0;
-  border-top: 1px solid #eee;
-  margin: 12px 0 10px;
-}
-
-/* ---- Statistics ---- */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  margin-top: 8px;
-}
-
-.stat-box {
-  background-color: #f0f4ff;
-  border: 1px solid #c5d2f6;
-  border-radius: 8px;
-  padding: 20px;
-  text-align: center;
-}
-
-.stat-label {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: #555;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 10px;
-}
-
-.stat-value {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #1a73e8;
+.badge-out-of-stock {
+  background-color: #f8d7da;
+  color: #721c24;
 }
 
 /* ---- Modal ---- */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.45);
+  background: rgba(0, 0, 0, 0.45);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -399,7 +317,7 @@ tbody td {
   padding: 28px 32px;
   width: 100%;
   max-width: 460px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
 }
 
 .modal h2 {
@@ -410,12 +328,79 @@ tbody td {
   padding-bottom: 8px;
 }
 
-/* ---- Order items detail in table ---- */
-.items-list {
-  list-style: none;
-  padding: 0;
-  font-size: 0.82rem;
-  color: #555;
+/* ---- Login Page ---- */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 90px);
+  padding: 20px;
 }
 
-.items-list li { padding: 1px 0; }
+.login-card {
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+}
+
+.login-card h2 {
+  text-align: center;
+  border: none;
+}
+
+/* ---- Inline Edit Inputs (Admin Table) ---- */
+.inline-input {
+  width: 80px;
+  padding: 5px 8px;
+  border: 1px solid #1a73e8;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  text-align: right;
+  background-color: #fff;
+}
+
+.inline-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.25);
+}
+
+.login-subtitle {
+  color: #777;
+  font-size: 0.9rem;
+  margin-bottom: 24px;
+}
+
+.login-btn {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  font-size: 1rem;
+  margin-top: 8px;
+}
+
+.role-desc {
+  font-size: 0.82rem;
+  color: #888;
+  margin-top: 6px;
+  margin-bottom: 4px;
+}
+
+.login-divider {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+  color: #aaa;
+  font-size: 0.85rem;
+}
+
+.login-divider::before,
+.login-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #ddd;
+}
+
+.login-divider span {
+  padding: 0 12px;
+}

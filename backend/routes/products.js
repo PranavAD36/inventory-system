@@ -1,44 +1,28 @@
 // ==========================================
 // routes/products.js - Product CRUD Operations
 // ==========================================
-// Demonstrates: INSERT, SELECT (with JOIN), UPDATE, DELETE, FILTER
-//
-// Database concept: JOIN
-//   products table has category_id (foreign key) → categories table
-//   Supabase auto-resolves FK joins using the select() syntax below.
+// Demonstrates all 4 CRUD operations:
+//   CREATE → POST   /api/products
+//   READ   → GET    /api/products
+//   UPDATE → PUT    /api/products/:id
+//   DELETE → DELETE /api/products/:id
 
 const express  = require('express');
 const router   = express.Router();
 const supabase = require('../db');
 
 // ==========================================
-// GET /api/products
-// Fetch all products with their category name (JOIN)
+// GET /api/products — Read all products
 // ==========================================
+// Equivalent SQL: SELECT * FROM products ORDER BY created_at DESC;
 router.get('/', async (req, res) => {
   try {
-    // JOIN: Select all product fields + the related category's id and name
-    // Supabase uses the FK relationship to perform this join internally
-    // Equivalent SQL:
-    //   SELECT products.*, categories.id, categories.name
-    //   FROM products
-    //   LEFT JOIN categories ON products.category_id = categories.id
-    //   ORDER BY products.created_at DESC;
     const { data, error } = await supabase
       .from('products')
-      .select(`
-        id,
-        name,
-        description,
-        price,
-        stock_quantity,
-        created_at,
-        categories (
-          id,
-          name
-        )
-      `)
+      .select('id, name, price, stock, created_at')
       .order('created_at', { ascending: false });
+
+    console.log('[GET /products] Fetched', data?.length, 'products');
 
     if (error) throw error;
 
@@ -49,58 +33,41 @@ router.get('/', async (req, res) => {
 });
 
 // ==========================================
-// GET /api/products/filter
-// Filter products by price range and optional category
+// GET /api/products/filter — Filter by price range
 // ==========================================
 // Example: GET /api/products/filter?minPrice=100&maxPrice=500
-// Example: GET /api/products/filter?minPrice=100&category=2
 router.get('/filter', async (req, res) => {
   try {
-    // Destructure query parameters, set sensible defaults
-    const { minPrice = 0, maxPrice = 9999999, category_id } = req.query;
+    const { minPrice = 0, maxPrice = 9999999 } = req.query;
 
-    // FILTER using .gte() → >= and .lte() → <=
-    // Equivalent SQL:
-    //   SELECT * FROM products
-    //   WHERE price >= minPrice AND price <= maxPrice;
-    let query = supabase
+    // Equivalent SQL: SELECT * FROM products WHERE price >= X AND price <= Y;
+    const { data, error } = await supabase
       .from('products')
-      .select('*, categories(id, name)')
-      .gte('price', Number(minPrice))   // WHERE price >= minPrice
-      .lte('price', Number(maxPrice))   // AND price <= maxPrice
+      .select('id, name, price, stock, created_at')
+      .gte('price', Number(minPrice))
+      .lte('price', Number(maxPrice))
       .order('price', { ascending: true });
 
-    // Optionally filter by category_id if provided
-    if (category_id) {
-      query = query.eq('category_id', Number(category_id)); // AND category_id = X
-    }
-
-    const { data, error } = await query;
     if (error) throw error;
 
-    res.json({ success: true, filters: { minPrice, maxPrice, category_id }, count: data.length, data });
+    res.json({ success: true, filters: { minPrice, maxPrice }, count: data.length, data });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
 });
 
 // ==========================================
-// GET /api/products/:id
-// Get a single product by ID
+// GET /api/products/:id — Get single product
 // ==========================================
+// Equivalent SQL: SELECT * FROM products WHERE id = :id LIMIT 1;
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
-    // .single() tells Supabase to return one object instead of an array
-    // Equivalent SQL:
-    //   SELECT products.*, categories.name
-    //   FROM products LEFT JOIN categories ...
-    //   WHERE products.id = :id LIMIT 1;
     const { data, error } = await supabase
       .from('products')
-      .select('*, categories(id, name)')
-      .eq('id', id)     // WHERE id = :id
+      .select('id, name, price, stock, created_at')
+      .eq('id', id)
       .single();
 
     if (error) throw error;
@@ -113,37 +80,32 @@ router.get('/:id', async (req, res) => {
 });
 
 // ==========================================
-// POST /api/products
-// Add a new product (INSERT)
+// POST /api/products — Add new product (INSERT)
 // ==========================================
-// Request body: { name, description, price, stock_quantity, category_id }
+// Request body: { name, price, stock }
 router.post('/', async (req, res) => {
   try {
-    const { name, description, price, stock_quantity, category_id } = req.body;
+    const { name, price, stock } = req.body;
 
     // Validate required fields
-    if (!name || price === undefined || !category_id) {
+    if (!name || price === undefined) {
       return res.status(400).json({
         success: false,
-        error: 'name, price, and category_id are required'
+        error: 'name and price are required'
       });
     }
 
-    // INSERT new product into the database
-    // .select() returns the newly created row (with auto-generated id, created_at)
-    // Equivalent SQL:
-    //   INSERT INTO products (name, description, price, stock_quantity, category_id)
-    //   VALUES (...) RETURNING *;
+    console.log('[POST /products] Inserting product:', name);
+
+    // Equivalent SQL: INSERT INTO products (name, price, stock) VALUES (...) RETURNING *;
     const { data, error } = await supabase
       .from('products')
       .insert([{
         name,
-        description: description || '',
         price: Number(price),
-        stock_quantity: Number(stock_quantity) || 0,
-        category_id: Number(category_id)
+        stock: Number(stock) || 0
       }])
-      .select('*, categories(id, name)');
+      .select('id, name, price, stock, created_at');
 
     if (error) throw error;
 
@@ -154,35 +116,32 @@ router.post('/', async (req, res) => {
 });
 
 // ==========================================
-// PUT /api/products/:id
-// Update an existing product (UPDATE)
+// PUT /api/products/:id — Update product (UPDATE)
 // ==========================================
-// Request body: any fields to update (name, description, price, stock_quantity, category_id)
+// Request body: any fields to update (name, price, stock)
 router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, price, stock_quantity, category_id } = req.body;
+    const { name, price, stock } = req.body;
 
     // Build update object with only the fields that were provided
     const updates = {};
-    if (name          !== undefined) updates.name           = name;
-    if (description   !== undefined) updates.description    = description;
-    if (price         !== undefined) updates.price          = Number(price);
-    if (stock_quantity !== undefined) updates.stock_quantity = Number(stock_quantity);
-    if (category_id   !== undefined) updates.category_id   = Number(category_id);
+    if (name  !== undefined) updates.name  = name;
+    if (price !== undefined) updates.price = Number(price);
+    if (stock !== undefined) updates.stock = Number(stock);
+
+    console.log('[PUT /products/:id] Updating product id:', id);
 
     if (Object.keys(updates).length === 0) {
       return res.status(400).json({ success: false, error: 'No fields to update' });
     }
 
-    // UPDATE the product WHERE id = :id
-    // Equivalent SQL:
-    //   UPDATE products SET name=..., price=... WHERE id = :id RETURNING *;
+    // Equivalent SQL: UPDATE products SET name=..., price=... WHERE id = :id RETURNING *;
     const { data, error } = await supabase
       .from('products')
       .update(updates)
-      .eq('id', id)   // WHERE id = :id
-      .select('*, categories(id, name)');
+      .eq('id', id)
+      .select('id, name, price, stock, created_at');
 
     if (error) throw error;
     if (!data || data.length === 0) {
@@ -190,6 +149,56 @@ router.put('/:id', async (req, res) => {
     }
 
     res.json({ success: true, message: 'Product updated successfully', data: data[0] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ==========================================
+// POST /api/products/:id/buy — Buy a product (reduce stock)
+// ==========================================
+// Request body: { quantity }
+// Validates stock availability before updating
+router.post('/:id/buy', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { quantity } = req.body;
+
+    // Validate quantity
+    if (!quantity || quantity <= 0) {
+      return res.status(400).json({ success: false, error: 'Quantity must be greater than 0' });
+    }
+
+    // First, fetch current stock
+    const { data: product, error: fetchError } = await supabase
+      .from('products')
+      .select('id, name, stock')
+      .eq('id', id)
+      .single();
+
+    if (fetchError) throw fetchError;
+    if (!product) return res.status(404).json({ success: false, error: 'Product not found' });
+
+    // Check if enough stock is available
+    if (quantity > product.stock) {
+      return res.status(400).json({ success: false, error: 'Not enough stock' });
+    }
+
+    // Calculate new stock and update
+    const newStock = product.stock - quantity;
+
+    // Equivalent SQL: UPDATE products SET stock = newStock WHERE id = :id RETURNING *;
+    const { data, error } = await supabase
+      .from('products')
+      .update({ stock: newStock })
+      .eq('id', id)
+      .select('id, name, price, stock, created_at');
+
+    if (error) throw error;
+
+    console.log(`[BUY] ${product.name} x${quantity} — stock: ${product.stock} → ${newStock}`);
+
+    res.json({ success: true, message: `Purchased ${quantity} x "${product.name}"`, data: data[0] });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
